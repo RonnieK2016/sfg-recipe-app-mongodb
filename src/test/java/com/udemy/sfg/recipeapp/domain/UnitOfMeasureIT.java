@@ -1,5 +1,8 @@
 package com.udemy.sfg.recipeapp.domain;
 
+import com.udemy.sfg.recipeapp.dataloaders.SpringBootDataLoader;
+import com.udemy.sfg.recipeapp.repositories.CategoryRepository;
+import com.udemy.sfg.recipeapp.repositories.RecipeRepository;
 import com.udemy.sfg.recipeapp.repositories.UnitOfMeasureRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +21,17 @@ class UnitOfMeasureIT {
     @Autowired
     private UnitOfMeasureRepository unitOfMeasureRepository;
 
+    @Autowired
+    private RecipeRepository recipeRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
+        SpringBootDataLoader recipeBootstrap = new SpringBootDataLoader(recipeRepository, unitOfMeasureRepository, categoryRepository);
+
+        recipeBootstrap.onApplicationEvent(null);
     }
 
     @Test
