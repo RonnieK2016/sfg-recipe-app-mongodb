@@ -35,6 +35,16 @@ public class RecipeCommandServiceImpl implements RecipeCommandService {
 
     @Override
     public RecipeCommand findRecipeCommandById(String id) {
-        return recipeToRecipeCommand.convert(recipeService.getById(id));
+
+        RecipeCommand recipeCommand = recipeToRecipeCommand.convert(recipeService.getById(id));
+
+        //enhance command object with id value
+        if(recipeCommand.getIngredients() != null && recipeCommand.getIngredients().size() > 0){
+            recipeCommand.getIngredients().forEach(rc -> {
+                rc.setRecipeId(recipeCommand.getId());
+            });
+        }
+
+        return recipeCommand;
     }
 }

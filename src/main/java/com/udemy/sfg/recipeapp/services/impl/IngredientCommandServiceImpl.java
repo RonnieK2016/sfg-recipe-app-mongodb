@@ -48,7 +48,9 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
             return null;
         }
 
-        return ingredientToIngredientCommand.convert(ingredient);
+        IngredientCommand ingredientCommand = ingredientToIngredientCommand.convert(ingredient);
+        ingredientCommand.setRecipeId(recipeId);
+        return ingredientCommand;
     }
 
     @Override
@@ -60,40 +62,40 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
             return new IngredientCommand();
         }
         else {
-
+            Ingredient ingredient;
             // new ingredient case
             if(command.getId() == null) {
-                Ingredient ingredient = ingredientCommandToIngredient.convert(command);
+                ingredient = ingredientCommandToIngredient.convert(command);
                 recipe.getIngredients().add(ingredient);
             }
             else
             {
-                Ingredient ingredientSearched = recipe.getIngredients()
+                ingredient = recipe.getIngredients()
                         .stream()
-                        .filter(ingredient -> command.getId().equals(ingredient.getId()))
+                        .filter(ingredientEl -> command.getId().equals(ingredientEl.getId()))
                         .findFirst()
                         .orElse(null);
-                if(ingredientSearched != null){
-                    ingredientSearched.setDescription(command.getDescription());
-                    ingredientSearched.setAmount(command.getAmount());
-                    ingredientSearched.setUnitOfMeasure(unitOfMeasureRepository
+                if(ingredient != null){
+                    ingredient.setDescription(command.getDescription());
+                    ingredient.setAmount(command.getAmount());
+                    ingredient.setUnitOfMeasure(unitOfMeasureRepository
                             .findById(command.getUnitOfMeasure().getId())
                             .orElseThrow(() -> new RuntimeException("UOM NOT FOUND")));
                 }
                 else {
-                    Ingredient ingredient = ingredientCommandToIngredient.convert(command);
+                    ingredient = ingredientCommandToIngredient.convert(command);
                     recipe.getIngredients().add(ingredient);
                 }
             }
+
+            command.setId(ingredient.getId());
         }
 
         Recipe savedRecipe = recipeService.saveRecipe(recipe);
 
-        //to do check for fail
-        return ingredientToIngredientCommand.convert(savedRecipe.getIngredients().stream()
-                .filter(recipeIngredients -> recipeIngredients.getDescription().equals(command.getDescription()))
-                .findFirst()
-                .get());
+        command.setRecipeId(savedRecipe.getId());
+
+        return command;
     }
 
     @Override

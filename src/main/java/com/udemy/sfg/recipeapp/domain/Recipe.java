@@ -1,6 +1,7 @@
 package com.udemy.sfg.recipeapp.domain;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"ingredients", "notes", "categories"})
 public class Recipe {
 
+    @Id
     private String id;
     private String description;
     private Integer prepTime;

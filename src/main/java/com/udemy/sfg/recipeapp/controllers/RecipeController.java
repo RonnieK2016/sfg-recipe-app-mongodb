@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -87,6 +88,11 @@ public class RecipeController {
             bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.toString()));
 
             return RECIPE_FORM_VIEW;
+        }
+
+        //hack to make mongo generate id
+        if(StringUtils.isEmpty(recipeCommand.getId())) {
+            recipeCommand.setId(null);
         }
 
         RecipeCommand savedCommand = recipeCommandService.saveRecipeCommand(recipeCommand);
