@@ -64,7 +64,6 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
             // new ingredient case
             if(command.getId() == null) {
                 Ingredient ingredient = ingredientCommandToIngredient.convert(command);
-                ingredient.setRecipe(recipe);
                 recipe.getIngredients().add(ingredient);
             }
             else
@@ -83,7 +82,6 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
                 }
                 else {
                     Ingredient ingredient = ingredientCommandToIngredient.convert(command);
-                    ingredient.setRecipe(recipe);
                     recipe.getIngredients().add(ingredient);
                 }
             }
@@ -112,7 +110,6 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
 
         if(ingredient != null) {
             recipe.getIngredients().remove(ingredient);
-            ingredient.setRecipe(null);
             recipeService.saveRecipe(recipe);
         }
     }

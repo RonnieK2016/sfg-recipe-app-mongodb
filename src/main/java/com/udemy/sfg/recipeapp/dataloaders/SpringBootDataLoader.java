@@ -5,14 +5,13 @@ import com.udemy.sfg.recipeapp.repositories.CategoryRepository;
 import com.udemy.sfg.recipeapp.repositories.RecipeRepository;
 import com.udemy.sfg.recipeapp.repositories.UnitOfMeasureRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Proxy;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,9 +31,17 @@ public class SpringBootDataLoader implements ApplicationListener<ContextRefreshe
     }
 
     @Override
-    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        loadData();
+        if(categoryRepository.count() == 0) {
+            loadCategories();
+        }
+        if(unitOfMeasureRepository.count() == 0) {
+            loadUnitsOfMeasure();
+        }
+
+        if(recipeRepository.count() == 0) {
+            loadData();
+        }
     }
 
     private void loadData() {
@@ -52,7 +59,6 @@ public class SpringBootDataLoader implements ApplicationListener<ContextRefreshe
         Notes notes = new Notes();
         notes.setRecipeNotes("For a very quick guacamole just take a 1/4 cup of salsa and mix it in with your mashed avocados.\n" +
                 "Feel free to experiment!");
-        notes.setRecipe(recipe);
         recipe.setNotes(notes);
         recipe.setPrepTime(10);
         recipe.setServings(4);
@@ -66,7 +72,7 @@ public class SpringBootDataLoader implements ApplicationListener<ContextRefreshe
         Ingredient avocado = new Ingredient();
         avocado.setAmount(new BigDecimal(2));
         avocado.setDescription("Ripe Avocado");
-        UnitOfMeasure none = unitOfMeasureRepository.findByDescription("").get();
+        UnitOfMeasure none = unitOfMeasureRepository.findByDescription("Each").get();
         avocado.setUnitOfMeasure(none);
         ingredients.add(avocado);
 
@@ -112,12 +118,54 @@ public class SpringBootDataLoader implements ApplicationListener<ContextRefreshe
         ripeTomato.setUnitOfMeasure(none);
         ingredients.add(ripeTomato);
 
-        ingredients.forEach(ingredient -> ingredient.setRecipe(recipe));
-
         recipe.setIngredients(ingredients);
 
         recipeRepository.save(recipe);
 
         log.info("Recipe saved!");
+    }
+
+    private void loadCategories() {
+        Category cat1 = new Category();
+        cat1.setDescription("American");
+
+        Category cat2 = new Category();
+        cat2.setDescription("Italian");
+
+        Category cat3 = new Category();
+        cat3.setDescription("Mexican");
+
+        Category cat4 = new Category();
+        cat4.setDescription("Fast Food");
+
+        categoryRepository.saveAll(Arrays.asList(cat1, cat2, cat3, cat4));
+    }
+
+    private void loadUnitsOfMeasure() {
+        UnitOfMeasure uom1 = new UnitOfMeasure();
+        uom1.setDescription("Teaspoon");
+
+        UnitOfMeasure uom2 = new UnitOfMeasure();
+        uom2.setDescription("Tablespoon");
+
+        UnitOfMeasure uom3 = new UnitOfMeasure();
+        uom3.setDescription("Cup");;
+
+        UnitOfMeasure uom4 = new UnitOfMeasure();
+        uom4.setDescription("Pinch");
+
+        UnitOfMeasure uom5 = new UnitOfMeasure();
+        uom5.setDescription("Ounce");
+
+        UnitOfMeasure uom6 = new UnitOfMeasure();
+        uom6.setDescription("Each");
+
+        UnitOfMeasure uom7 = new UnitOfMeasure();
+        uom7.setDescription("Pint");
+
+        UnitOfMeasure uom8 = new UnitOfMeasure();
+        uom8.setDescription("Dash");
+
+        unitOfMeasureRepository.saveAll(Arrays.asList(uom1, uom2, uom3, uom4, uom5, uom6, uom7, uom8));
     }
 }

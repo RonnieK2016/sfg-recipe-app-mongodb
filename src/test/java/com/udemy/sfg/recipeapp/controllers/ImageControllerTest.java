@@ -3,6 +3,7 @@ package com.udemy.sfg.recipeapp.controllers;
 import com.udemy.sfg.recipeapp.commands.RecipeCommand;
 import com.udemy.sfg.recipeapp.services.ImageService;
 import com.udemy.sfg.recipeapp.services.RecipeCommandService;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,12 +94,5 @@ class ImageControllerTest {
         byte[] returnedImage = response.getContentAsByteArray();
 
         assertEquals(image.length, returnedImage.length);
-    }
-
-    @Test
-    void testNumberFormatException() throws Exception {
-        mockMvc.perform(get("/recipe/asdf/image"))
-                .andExpect(status().isBadRequest())
-                .andExpect(view().name("400"));
     }
 }

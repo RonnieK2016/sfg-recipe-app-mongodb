@@ -4,15 +4,12 @@ import com.udemy.sfg.recipeapp.commands.RecipeCommand;
 import com.udemy.sfg.recipeapp.converters.RecipeCommandToRecipe;
 import com.udemy.sfg.recipeapp.converters.RecipeToRecipeCommand;
 import com.udemy.sfg.recipeapp.domain.Recipe;
-import com.udemy.sfg.recipeapp.repositories.RecipeRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.CollectionUtils;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -37,7 +34,6 @@ class RecipeServiceIT {
     @Autowired
     private RecipeToRecipeCommand recipeToRecipeCommand;
 
-    @Transactional
     @Test
     void testSaveOfDescription() {
         //given
