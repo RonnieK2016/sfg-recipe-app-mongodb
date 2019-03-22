@@ -50,7 +50,10 @@ public class IngredientController {
     public String updateRecipeIngredient(@PathVariable String recipeId,
                                          @PathVariable String ingredientId,
                                          Model model) {
-        model.addAttribute("uomList", unitOfMeasureCommandService.getAllUoms());
+        model.addAttribute("uomList", unitOfMeasureCommandService
+                .getAllUoms()
+                .collectList()
+                .block());
         model.addAttribute("ingredient", ingredientCommandService.findByRecipeIdAndIngredientId(recipeId, ingredientId));
 
         return "recipe/ingredient/ingredientform";
@@ -58,7 +61,10 @@ public class IngredientController {
 
     @GetMapping("recipe/{recipeId}/ingredient/new")
     public String createNewRecipeIngredient(@PathVariable String recipeId, Model model) {
-        model.addAttribute("uomList", unitOfMeasureCommandService.getAllUoms());
+        model.addAttribute("uomList", unitOfMeasureCommandService
+                .getAllUoms()
+                .collectList()
+                .block());
         IngredientCommand command = new IngredientCommand();
         command.setRecipeId(recipeId);
         command.setUnitOfMeasure(new UnitOfMeasureCommand());

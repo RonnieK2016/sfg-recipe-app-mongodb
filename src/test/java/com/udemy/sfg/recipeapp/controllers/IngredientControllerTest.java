@@ -2,6 +2,7 @@ package com.udemy.sfg.recipeapp.controllers;
 
 import com.udemy.sfg.recipeapp.commands.IngredientCommand;
 import com.udemy.sfg.recipeapp.commands.RecipeCommand;
+import com.udemy.sfg.recipeapp.commands.UnitOfMeasureCommand;
 import com.udemy.sfg.recipeapp.services.IngredientCommandService;
 import com.udemy.sfg.recipeapp.services.RecipeCommandService;
 import com.udemy.sfg.recipeapp.services.UnitOfMeasureCommandService;
@@ -13,8 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.HashSet;
+import reactor.core.publisher.Flux;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,13 +31,11 @@ class IngredientControllerTest {
     @Mock
     private UnitOfMeasureCommandService unitOfMeasureCommandService;
 
-    private IngredientController ingredientController;
-
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        ingredientController = new IngredientController(recipeCommandService, ingredientCommandService, unitOfMeasureCommandService);
+        IngredientController ingredientController = new IngredientController(recipeCommandService, ingredientCommandService, unitOfMeasureCommandService);
         mockMvc = MockMvcBuilders.standaloneSetup(ingredientController).build();
     }
 
@@ -72,7 +70,7 @@ class IngredientControllerTest {
 
         //when
         when(ingredientCommandService.findByRecipeIdAndIngredientId(anyString(), anyString())).thenReturn(ingredientCommand);
-        when(unitOfMeasureCommandService.getAllUoms()).thenReturn(new HashSet<>());
+        when(unitOfMeasureCommandService.getAllUoms()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
 
         //then
         mockMvc.perform(get("/recipe/1/ingredient/2/update"))
@@ -106,7 +104,7 @@ class IngredientControllerTest {
     @Test
     void testNewIngredientForm() throws Exception {
 
-        when(unitOfMeasureCommandService.getAllUoms()).thenReturn(new HashSet<>());
+        when(unitOfMeasureCommandService.getAllUoms()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
 
         //then
         mockMvc.perform(get("/recipe/1/ingredient/new"))
