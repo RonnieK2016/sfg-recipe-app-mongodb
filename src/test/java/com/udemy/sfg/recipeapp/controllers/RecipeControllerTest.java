@@ -1,5 +1,6 @@
 package com.udemy.sfg.recipeapp.controllers;
 
+import com.udemy.sfg.recipeapp.commands.CategoryCommand;
 import com.udemy.sfg.recipeapp.commands.RecipeCommand;
 import com.udemy.sfg.recipeapp.domain.Recipe;
 import com.udemy.sfg.recipeapp.exceptions.NotFoundException;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.Mockito.*;
@@ -60,6 +62,8 @@ class RecipeControllerTest {
 
     @Test
     void testGetNewRecipeForm() throws Exception {
+        when(categoryCommandService.getAllCategoryCommands()).thenReturn(Flux.just(new CategoryCommand()));
+
         mockMvc.perform(get("/recipe/new"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/recipeform"))
@@ -100,6 +104,8 @@ class RecipeControllerTest {
         command.setId("2");
 
         when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(Mono.just(command));
+
+        when(categoryCommandService.getAllCategoryCommands()).thenReturn(Flux.just(new CategoryCommand()));
 
         mockMvc.perform(get("/recipe/1/update"))
                 .andExpect(status().isOk())

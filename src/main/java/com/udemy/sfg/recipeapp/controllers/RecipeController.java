@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import java.util.Set;
+import java.util.List;
 
 @Controller
 @Slf4j
@@ -50,7 +50,8 @@ public class RecipeController {
     @RequestMapping("recipe/new")
     public String showRecipeForm(Model model) {
         model.addAttribute("recipe", new RecipeCommand());
-        model.addAttribute( "categories", categoryCommandService.getAllCategoryCommands());
+        model.addAttribute( "categories", categoryCommandService.getAllCategoryCommands()
+                .collectList().block());
         return RECIPE_FORM_VIEW;
     }
 
@@ -59,7 +60,8 @@ public class RecipeController {
     public String updateRecipeForm(@PathVariable String id, Model model) {
 
         RecipeCommand recipeCommand = recipeCommandService.findRecipeCommandById(id).block();
-        Set<CategoryCommand> categoryCommands = categoryCommandService.getAllCategoryCommands();
+        List<CategoryCommand> categoryCommands =  categoryCommandService
+                .getAllCategoryCommands().collectList().block();
 
         if(!CollectionUtils.isEmpty(recipeCommand.getCategories())) {
             categoryCommands.removeIf(categoryCommand -> recipeCommand.getCategories().contains(categoryCommand));

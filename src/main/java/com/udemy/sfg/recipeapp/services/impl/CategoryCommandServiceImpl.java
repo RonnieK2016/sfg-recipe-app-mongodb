@@ -6,6 +6,8 @@ import com.udemy.sfg.recipeapp.domain.Category;
 import com.udemy.sfg.recipeapp.services.CategoryCommandService;
 import com.udemy.sfg.recipeapp.services.CategoryService;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,15 +25,13 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
 
 
     @Override
-    public Set<CategoryCommand> getAllCategoryCommands() {
+    public Flux<CategoryCommand> getAllCategoryCommands() {
         return categoryService.getAllCategories()
-                .stream()
-                .map(categoryToCategoryCommand::convert).collect(Collectors.toSet());
+                .map(categoryToCategoryCommand::convert);
     }
 
     @Override
-    public CategoryCommand findCategoryCommandById(String id) {
-        Category category = categoryService.findById(id);
-        return categoryToCategoryCommand.convert(category);
+    public Mono<CategoryCommand> findCategoryCommandById(String id) {
+        return categoryService.findById(id).map(categoryToCategoryCommand::convert);
     }
 }
