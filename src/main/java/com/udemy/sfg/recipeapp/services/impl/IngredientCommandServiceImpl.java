@@ -33,25 +33,15 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
 
     @Override
     public Mono<IngredientCommand> findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
-        Recipe recipe = recipeService.getById(recipeId).block();
-
-        if(recipe == null) {
-            log.warn("Recipe is not found by id {} ", recipeId);
-            return null;
-        }
-
-        Ingredient ingredient = recipe.getIngredients().stream()
-                .filter( in -> ingredientId.equals(in.getId()))
-                .findFirst()
-                .orElse(null);
-        if(ingredient == null) {
-            log.warn("Ingredient is not found by id {} ", ingredientId);
-            return null;
-        }
-
-        IngredientCommand ingredientCommand = ingredientToIngredientCommand.convert(ingredient);
-        ingredientCommand.setRecipeId(recipeId);
-        return Mono.just(ingredientCommand);
+        return recipeService.getById(recipeId)
+                .flatMapIterable(Recipe::getIngredients)
+                .filter(in -> ingredientId.equals(in.getId()))
+                .single()
+                .map(ingredient ->  {
+                    IngredientCommand ingredientCommand = ingredientToIngredientCommand.convert(ingredient);
+                    ingredientCommand.setRecipeId(recipeId);
+                    return ingredientCommand;
+                });
     }
 
     @Override
