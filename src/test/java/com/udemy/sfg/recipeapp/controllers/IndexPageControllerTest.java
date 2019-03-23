@@ -12,9 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.Model;
+import reactor.core.publisher.Flux;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -49,23 +49,22 @@ class IndexPageControllerTest {
     @Test
     void getIndexPage() {
         //given
-        Set<Recipe> recipes = new HashSet<>();
         Recipe recipe = new Recipe();
         Recipe recipe1 = new Recipe();
         recipe.setId("1");
-        recipes.add(recipe);
-        recipes.add(recipe1);
 
         //when
-        when(recipeService.getAllRecipes()).thenReturn(recipes);
+        when(recipeService.getAllRecipes()).thenReturn(Flux.just(recipe, recipe1));
 
         assertEquals("index", indexPageController.getIndexPage(model));
 
-        ArgumentCaptor<Set<Recipe>> setArgumentCaptor  = ArgumentCaptor.forClass(Set.class);
+        ArgumentCaptor<Flux> setArgumentCaptor  = ArgumentCaptor.forClass(Flux.class);
 
         verify(model, times(1)).addAttribute(eq("recipes"), setArgumentCaptor.capture());
         verify(recipeService, times(1)).getAllRecipes();
 
-        assertEquals(2, setArgumentCaptor.getValue().size());
+        List<Recipe> recipes = (List<Recipe>) setArgumentCaptor.getValue().collectList().block();
+
+        assertEquals(2, recipes.size());
     }
 }

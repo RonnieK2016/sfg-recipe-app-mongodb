@@ -3,7 +3,6 @@ package com.udemy.sfg.recipeapp.controllers;
 import com.udemy.sfg.recipeapp.commands.RecipeCommand;
 import com.udemy.sfg.recipeapp.services.ImageService;
 import com.udemy.sfg.recipeapp.services.RecipeCommandService;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,13 +31,11 @@ class ImageControllerTest {
     @Mock
     private RecipeCommandService recipeCommandService;
 
-    private ImageController imageController;
-
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        imageController = new ImageController(recipeCommandService, imageService);
+        ImageController imageController = new ImageController(recipeCommandService, imageService);
         mockMvc = MockMvcBuilders
                 .standaloneSetup(imageController)
                 .setControllerAdvice(new ExceptionHandlerController())
@@ -46,7 +44,7 @@ class ImageControllerTest {
 
     @Test
     void showUploadForm() throws Exception {
-        when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(new RecipeCommand());
+        when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(Mono.just(new RecipeCommand()));
 
         mockMvc.perform(get("/recipe/1/image"))
                 .andExpect(status().isOk())
@@ -85,7 +83,7 @@ class ImageControllerTest {
 
         recipeCommand.setImage(bytesObject);
 
-        when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(recipeCommand);
+        when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 
         MockHttpServletResponse response = mockMvc.perform(get("/recipe/1/recipeimage"))
                 .andExpect(status().isOk())

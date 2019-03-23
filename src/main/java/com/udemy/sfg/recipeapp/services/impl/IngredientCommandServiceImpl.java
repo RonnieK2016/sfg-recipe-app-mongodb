@@ -10,6 +10,7 @@ import com.udemy.sfg.recipeapp.services.IngredientCommandService;
 import com.udemy.sfg.recipeapp.services.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import javax.swing.text.html.Option;
 
@@ -31,8 +32,8 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
     }
 
     @Override
-    public IngredientCommand findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
-        Recipe recipe = recipeService.getById(recipeId);
+    public Mono<IngredientCommand> findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
+        Recipe recipe = recipeService.getById(recipeId).block();
 
         if(recipe == null) {
             log.warn("Recipe is not found by id {} ", recipeId);
@@ -50,16 +51,16 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
 
         IngredientCommand ingredientCommand = ingredientToIngredientCommand.convert(ingredient);
         ingredientCommand.setRecipeId(recipeId);
-        return ingredientCommand;
+        return Mono.just(ingredientCommand);
     }
 
     @Override
-    public IngredientCommand saveIngredientCommand(IngredientCommand command) {
-        Recipe recipe = recipeService.getById(command.getRecipeId());
+    public Mono<IngredientCommand> saveIngredientCommand(IngredientCommand command) {
+        Recipe recipe = recipeService.getById(command.getRecipeId()).block();
 
         if(recipe == null){
             log.error("Recipe not found for id: {}", command.getRecipeId());
-            return new IngredientCommand();
+            return Mono.just(new IngredientCommand());
         }
         else {
             Ingredient ingredient;
@@ -91,16 +92,16 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
             command.setId(ingredient.getId());
         }
 
-        Recipe savedRecipe = recipeService.saveRecipe(recipe);
+        Recipe savedRecipe = recipeService.saveRecipe(recipe).block();
 
         command.setRecipeId(savedRecipe.getId());
 
-        return command;
+        return Mono.just(command);
     }
 
     @Override
     public void deleteIngredientByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
-        Recipe recipe = recipeService.getById(recipeId);
+        Recipe recipe = recipeService.getById(recipeId).block();
 
         if(recipe == null){
             throw new RuntimeException("Recipe not found for id: " + recipeId);
@@ -112,7 +113,7 @@ public class IngredientCommandServiceImpl implements IngredientCommandService {
 
         if(ingredient != null) {
             recipe.getIngredients().remove(ingredient);
-            recipeService.saveRecipe(recipe);
+            recipeService.saveRecipe(recipe).block();
         }
     }
 }

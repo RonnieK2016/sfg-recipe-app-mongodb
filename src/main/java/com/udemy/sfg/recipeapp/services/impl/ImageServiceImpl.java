@@ -15,13 +15,13 @@ public class ImageServiceImpl implements ImageService {
 
     private final RecipeService recipeService;
 
-    public ImageServiceImpl(RecipeService recipeService) {
+    ImageServiceImpl(RecipeService recipeService) {
         this.recipeService = recipeService;
     }
 
     @Override
     public void saveImageFile(String recipeId, MultipartFile file) {
-        Recipe recipe = recipeService.getById(recipeId);
+        Recipe recipe = recipeService.getById(recipeId).block();
 
         if(recipe == null) {
             throw new RuntimeException("Cannot find recipe by id " + recipeId);
@@ -36,7 +36,7 @@ public class ImageServiceImpl implements ImageService {
 
                 recipe.setImage(bytes);
 
-                recipeService.saveRecipe(recipe);
+                recipeService.saveRecipe(recipe).block();
             }
             catch (IOException e) {
                 log.error("Error during file store ", e);

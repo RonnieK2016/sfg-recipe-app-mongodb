@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -40,7 +41,8 @@ class ImageServiceImplTest {
         Recipe recipe = new Recipe();
         recipe.setId(id);
 
-        when(recipeService.getById(anyString())).thenReturn(recipe);
+        when(recipeService.getById(anyString())).thenReturn(Mono.just(recipe));
+        when(recipeService.saveRecipe(any(Recipe.class))).thenReturn(Mono.just(recipe));
 
         ArgumentCaptor<Recipe> argumentCaptor = ArgumentCaptor.forClass(Recipe.class);
 

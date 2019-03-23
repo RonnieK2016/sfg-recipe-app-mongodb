@@ -9,12 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 
-import java.util.Set;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -37,16 +36,23 @@ class RecipeServiceIT {
     @Test
     void testSaveOfDescription() {
         //given
-        Set<Recipe> recipes = recipeService.getAllRecipes();
+        Flux<Recipe> recipesFuture = recipeService.getAllRecipes();
+
+        List<Recipe> recipes = recipesFuture.collectList().block();
+
+        assertNotNull(recipes);
 
         assertFalse(recipes.isEmpty());
 
-        Recipe testRecipe = recipes.iterator().next();
+        Recipe testRecipe = recipes.get(0);
+
+        assertNotNull(testRecipe);
+
         RecipeCommand testRecipeCommand = recipeToRecipeCommand.convert(testRecipe);
 
         //when
         testRecipeCommand.setDescription(NEW_DESCRIPTION);
-        RecipeCommand savedRecipeCommand = recipeCommandService.saveRecipeCommand(testRecipeCommand);
+        RecipeCommand savedRecipeCommand = recipeCommandService.saveRecipeCommand(testRecipeCommand).block();
 
         //then
         assertEquals(NEW_DESCRIPTION, savedRecipeCommand.getDescription());

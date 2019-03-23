@@ -8,6 +8,7 @@ import com.udemy.sfg.recipeapp.services.RecipeCommandService;
 import com.udemy.sfg.recipeapp.services.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -24,27 +25,18 @@ public class RecipeCommandServiceImpl implements RecipeCommandService {
     }
 
     @Override
-    public RecipeCommand saveRecipeCommand(RecipeCommand command) {
-        Recipe detachedRecipe = recipeCommandToRecipe.convert(command);
-        Recipe savedRecipe = recipeService.saveRecipe(detachedRecipe);
-
-        log.debug("Saved recipe: {}", savedRecipe.getId());
-
-        return recipeToRecipeCommand.convert(savedRecipe);
+    public Mono<RecipeCommand> saveRecipeCommand(RecipeCommand command) {
+        return recipeService.saveRecipe(recipeCommandToRecipe.convert(command))
+                .map(recipeToRecipeCommand::convert);
     }
 
     @Override
-    public RecipeCommand findRecipeCommandById(String id) {
+    public Mono<RecipeCommand> findRecipeCommandById(String id) {
 
-        RecipeCommand recipeCommand = recipeToRecipeCommand.convert(recipeService.getById(id));
 
-        //enhance command object with id value
-        if(recipeCommand.getIngredients() != null && recipeCommand.getIngredients().size() > 0){
-            recipeCommand.getIngredients().forEach(rc -> {
-                rc.setRecipeId(recipeCommand.getId());
-            });
-        }
-
-        return recipeCommand;
+        return recipeService.getById(id).map( recipe -> {
+            RecipeCommand recipeCommand = recipeToRecipeCommand.convert(recipe);
+            return  recipeCommand;
+        });
     }
 }

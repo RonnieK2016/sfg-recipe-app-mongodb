@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,7 +43,7 @@ class IngredientControllerTest {
     @Test
     void listIngredients() throws Exception {
 
-        when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(new RecipeCommand());
+        when(recipeCommandService.findRecipeCommandById(anyString())).thenReturn(Mono.just(new  RecipeCommand()));
 
         mockMvc.perform(get("/recipe/1/ingredients"))
                 .andExpect(status().isOk())
@@ -54,7 +55,8 @@ class IngredientControllerTest {
 
     @Test
     void viewIngredientById() throws Exception {
-        when(ingredientCommandService.findByRecipeIdAndIngredientId(anyString(), anyString())).thenReturn(new IngredientCommand());
+        when(ingredientCommandService.findByRecipeIdAndIngredientId(anyString(), anyString()))
+                .thenReturn((Mono.just(new IngredientCommand())));
 
         mockMvc.perform(get("/recipe/1/ingredient/2/show"))
                 .andExpect(status().isOk())
@@ -69,7 +71,8 @@ class IngredientControllerTest {
         IngredientCommand ingredientCommand = new IngredientCommand();
 
         //when
-        when(ingredientCommandService.findByRecipeIdAndIngredientId(anyString(), anyString())).thenReturn(ingredientCommand);
+        when(ingredientCommandService.findByRecipeIdAndIngredientId(anyString(), anyString()))
+                .thenReturn((Mono.just(ingredientCommand)));
         when(unitOfMeasureCommandService.getAllUoms()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
 
         //then
@@ -88,7 +91,7 @@ class IngredientControllerTest {
         command.setRecipeId("2");
 
         //when
-        when(ingredientCommandService.saveIngredientCommand(any())).thenReturn(command);
+        when(ingredientCommandService.saveIngredientCommand(any())).thenReturn(Mono.just(command));
 
         //then
         mockMvc.perform(post("/recipe/2/ingredient")

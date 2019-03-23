@@ -30,7 +30,7 @@ public class IngredientController {
     @GetMapping("recipe/{id}/ingredients")
     public String listIngredients(@PathVariable String id, Model model) {
 
-        model.addAttribute("recipe", recipeCommandService.findRecipeCommandById(id));
+        model.addAttribute("recipe", recipeCommandService.findRecipeCommandById(id).block());
 
         return "recipe/ingredient/list";
     }
@@ -41,7 +41,7 @@ public class IngredientController {
                                      Model model) {
 
         model.addAttribute("ingredient",
-                ingredientCommandService.findByRecipeIdAndIngredientId(recipeId, ingredientId));
+                ingredientCommandService.findByRecipeIdAndIngredientId(recipeId, ingredientId).block());
 
         return "recipe/ingredient/show";
     }
@@ -54,7 +54,8 @@ public class IngredientController {
                 .getAllUoms()
                 .collectList()
                 .block());
-        model.addAttribute("ingredient", ingredientCommandService.findByRecipeIdAndIngredientId(recipeId, ingredientId));
+        model.addAttribute("ingredient", ingredientCommandService
+                .findByRecipeIdAndIngredientId(recipeId, ingredientId).block());
 
         return "recipe/ingredient/ingredientform";
     }
@@ -88,7 +89,7 @@ public class IngredientController {
             command.setId(null);
         }
 
-        IngredientCommand savedCommand = ingredientCommandService.saveIngredientCommand(command);
+        IngredientCommand savedCommand = ingredientCommandService.saveIngredientCommand(command).block();
 
         log.debug("saved receipe id:" + savedCommand.getRecipeId());
         log.debug("saved ingredient id:" + savedCommand.getId());

@@ -1,10 +1,11 @@
 package com.udemy.sfg.recipeapp.services;
 
 import com.udemy.sfg.recipeapp.commands.RecipeCommand;
+import reactor.core.publisher.Mono;
 
 public interface RecipeCommandService {
 
-    RecipeCommand saveRecipeCommand(RecipeCommand command);
+    Mono<RecipeCommand> saveRecipeCommand(RecipeCommand command);
 
-    RecipeCommand findRecipeCommandById(String id);
+    Mono<RecipeCommand> findRecipeCommandById(String id);
 }

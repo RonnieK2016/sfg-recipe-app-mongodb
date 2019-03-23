@@ -6,9 +6,12 @@ import com.udemy.sfg.recipeapp.converters.RecipeToRecipeCommand;
 import com.udemy.sfg.recipeapp.domain.Recipe;
 import com.udemy.sfg.recipeapp.exceptions.NotFoundException;
 import com.udemy.sfg.recipeapp.repositories.RecipeRepository;
+import com.udemy.sfg.recipeapp.repositories.reactive.RecipeReactiveRepository;
 import com.udemy.sfg.recipeapp.services.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -18,42 +21,30 @@ import java.util.Set;
 @Slf4j
 public class RecipeDbService implements RecipeService {
 
-    private final RecipeRepository recipeRepository;
+    private final RecipeReactiveRepository recipeRepository;
 
-    public RecipeDbService(RecipeRepository recipeRepository) {
+    public RecipeDbService(RecipeReactiveRepository recipeRepository) {
         this.recipeRepository = recipeRepository;
     }
 
     @Override
-    public Set<Recipe> getAllRecipes() {
-        HashSet<Recipe> recipes = new HashSet<>();
-        recipeRepository.findAll().forEach(recipes::add);
-
-        log.debug("Getting all recipes {} ", recipes.size());
-
-        return recipes;
+    public Flux<Recipe> getAllRecipes() {
+        return recipeRepository.findAll();
     }
 
     @Override
-    public Recipe getById(String id) {
-        Optional<Recipe> recipe = recipeRepository.findById(id);
-        if(!recipe.isPresent()) {
-            throw  new NotFoundException("Recipe is not found by ID " + id);
-        }
-
-        return recipe.get();
+    public Mono<Recipe> getById(String id) {
+        return recipeRepository.findById(id);
     }
 
     @Override
-    public Recipe saveRecipe(Recipe recipe) {
-        Recipe savedRecipe = recipeRepository.save(recipe);
-        log.debug("Saved RecipeId:" + savedRecipe.getId());
-        return savedRecipe;
+    public Mono<Recipe> saveRecipe(Recipe recipe) {
+        return recipeRepository.save(recipe);
     }
 
     @Override
     public void deleteById(String id) {
-        recipeRepository.deleteById(id);
+        recipeRepository.deleteById(id).block();
         log.debug("Recipe with id - {} - deleted", id);
     }
 }
